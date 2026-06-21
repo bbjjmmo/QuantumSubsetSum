@@ -8,7 +8,7 @@ Given a list of integers `L` and a target sum, the algorithm finds all subsets o
 
 ## Structure
 
-The notebook (`grover_subset_sum_v2.ipynb`) is organized as a pipeline of composable circuit-returning functions:
+The notebook (`grover_subset_sum.ipynb`) is organized as a pipeline of composable circuit-returning functions:
 
 | Function | Description |
 |---|---|
@@ -32,6 +32,26 @@ for val, prob in grover_subset_sum(target, L):
 
 Run all cells in order. The final cell prints the amplified boolean states and their subsets.
 
+## Single vs Multiple Solutions
+
+The number of Grover iterations used is:
+
+```
+num_iter = round(π/4 · √(2^n))
+```
+
+This formula is derived assuming **exactly one solution** (M = 1). In this case it is optimal and yields near-100% success probability.
+
+When **multiple solutions exist** (M > 1), the optimal iteration count is:
+
+```
+k_opt = round(π / (4 · arcsin(√(M / 2^n))))
+```
+
+which is smaller. The M = 1 formula overshoots: applying too many iterations rotates the state past the solution and back toward uniform. For example, with `L = [1, 3, 4]` and `target = 4` there are M = 2 solutions ({1,3} and {4}); the optimal iteration count is k = 1, but the formula gives k = 2, which collapses the probability distribution back to near-uniform and returns all states above threshold rather than just the solutions.
+
+Since M is unknown in advance, the current implementation uses the M = 1 approximation and is reliable when the target sum has a unique subset. Handling the multi-solution case requires quantum counting or an adaptive iteration strategy.
+
 ## Requirements
 
 ```
@@ -46,7 +66,6 @@ pip install qiskit pylatexenc
 ## Notes
 
 - The sum register is an ancilla initialized to |0⟩ and uncomputed by the oracle; do not apply H to it
-- `num_iter = round(π/4 · √(2^n))` assumes one solution; cases with multiple solutions may overshoot and return near-uniform probabilities
 - Statevector simulation; cost scales as 2^(n + len(L)) where n = ceil(log2(sum(L) + 1))
 
 ## Author
