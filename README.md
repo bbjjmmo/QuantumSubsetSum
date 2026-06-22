@@ -22,35 +22,22 @@ Each function returns a `QuantumCircuit`. Call `.to_gate()` on the output when c
 
 ## Usage
 
-```python
-L = [1, 3, 4]
-target = 4
-for val, prob in grover_subset_sum(target, L):
-    subset = [L[k] for k in range(len(L)) if (val >> k) & 1]
-    print(f"bool={val:0{len(L)}b}  subset={subset}  prob={prob:.4f}")
+Run all cells in order. The final cell prompts for input:
+
+```
+List (comma-separated integers): 1, 3, 4
+Target sum: 3
 ```
 
-Run all cells in order. The final cell prints the amplified boolean states and their subsets.
+and prints the amplified boolean states and their subsets:
+
+```
+bool=010  subset=[3]  prob=0.9453
+```
 
 ## Single vs Multiple Solutions
 
-The number of Grover iterations used is:
-
-```
-num_iter = round(π/4 · √(2^n))
-```
-
-This formula is derived assuming **exactly one solution** (M = 1). In this case it is optimal and yields near-100% success probability.
-
-When **multiple solutions exist** (M > 1), the optimal iteration count is:
-
-```
-k_opt = round(π / (4 · arcsin(√(M / 2^n))))
-```
-
-which is smaller. The M = 1 formula overshoots: applying too many iterations rotates the state past the solution and back toward uniform. For example, with `L = [1, 3, 4]` and `target = 4` there are M = 2 solutions ({1,3} and {4}); the optimal iteration count is k = 1, but the formula gives k = 2, which collapses the probability distribution back to near-uniform and returns all states above threshold rather than just the solutions.
-
-Since M is unknown in advance, the current implementation uses the M = 1 approximation and is reliable when the target sum has a unique subset. Handling the multi-solution case requires quantum counting or an adaptive iteration strategy.
+This implementation is calibrated for a **single solution**. When multiple subsets sum to the target, accuracy drops significantly: the iteration count is set assuming one solution, so with more solutions it overshoots — rotating the quantum state past the amplified peak and back toward a near-uniform distribution. In practice this means all boolean states are returned above the probability threshold rather than just the correct ones.
 
 ## Requirements
 
