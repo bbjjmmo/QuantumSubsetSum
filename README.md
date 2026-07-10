@@ -35,6 +35,16 @@ and prints the amplified boolean states and their subsets:
 bool=010  subset=[3]  prob=0.9453
 ```
 
+Alternatively, call `grover_subset_sum` directly with a target and a list, skipping the input prompt:
+
+```python
+grover_subset_sum(3, [1, 3, 4])
+```
+
+```
+bool=010  subset=[3]  prob=0.9453
+```
+
 ## Single vs Multiple Solutions
 
 This implementation is calibrated for a **single solution**. When multiple subsets sum to the target, accuracy drops significantly: the iteration count is set assuming one solution, so with more solutions it overshoots — rotating the quantum state past the amplified peak and back toward a near-uniform distribution. In practice this means all boolean states are returned above the probability threshold rather than just the correct ones.
